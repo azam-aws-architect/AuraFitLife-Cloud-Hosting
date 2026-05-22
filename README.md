@@ -32,3 +32,31 @@ This project utilizes a highly secure, serverless architecture to deliver static
 
 * **MIME-Type & Content-Type Resolution:** Resolved complex browser rendering anomalies by overriding metadata constraints, ensuring strict `text/html` compliance over default system transport streams.
 * **Cache Invalidation Pipelines:** Implemented wild-card edge invalidation policies (`/*`) to force synchronous updates across global edge servers instantaneously upon asset deployment.
+
+---
+
+## 🔐 IAM Identity & Access Management (S3 Bucket Policy)
+
+To enforce strict security boundaries, an explicit IAM Bucket Policy was applied to the private S3 bucket. This policy allows **only** the specified CloudFront Distribution ID to fetch objects using **Origin Access Control (OAC)**, while explicitly denying all other direct public internet traffic.
+
+### Production IAM Bucket Policy Configuration:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowCloudFrontServicePrincipalReadOnly",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "cloudfront.amazonaws.com"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::azam-aws-portfolio-2026/*",
+            "Condition": {
+                "StringEquals": {
+                    "AWS:SourceArn": "arn:aws:cloudfront::YOUR_AWS_ACCOUNT_ID:distribution/YOUR_CLOUDFRONT_DISTRIBUTION_ID"
+                }
+            }
+        }
+    ]
+}
